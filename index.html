@@ -5,34 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gym App</title>
     
-    <!-- Configuraciones para iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon.png">
 
     <style>
-        /* Estilos base inspirados en iOS Modo Oscuro */
         :root {
             --bg-color: #000000;
             --card-bg: #1C1C1E;
             --text-primary: #FFFFFF;
             --text-secondary: #EBEBF599;
-            --accent-color: #0A84FF; /* Azul clásico de iOS */
+            --accent-color: #0A84FF;
+            --danger-color: #FF3B30; /* Rojo iOS */
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            user-select: none; /* Evita que el texto se seleccione al tocar rápido */
+            user-select: none;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-primary);
             padding: 20px;
-            padding-top: env(safe-area-inset-top); /* Respeta el notch del iPhone 17 */
+            padding-top: env(safe-area-inset-top);
         }
 
         header {
@@ -55,21 +54,46 @@
             border-radius: 50%;
             width: 40px;
             height: 40px;
-            font-size: 24px;
+            font-size: 28px;
+            line-height: 1; /* Esto ayuda a centrar el + */
+            padding-bottom: 4px; /* Ajuste óptico fino para iOS */
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* Contenedor donde aparecerán las rutinas */
         #rutinas-container {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+        }
+
+        /* Estructura para el Swipe to Delete */
+        .rutina-wrapper {
+            position: relative;
+            border-radius: 14px;
+            overflow: hidden;
+            background-color: var(--danger-color);
+            margin-bottom: 15px; 
+        }
+
+        .btn-delete {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 80px;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 600;
+            cursor: pointer;
         }
 
         .rutina-card {
+            position: relative;
+            z-index: 1;
             background-color: var(--card-bg);
             padding: 20px;
             border-radius: 14px;
@@ -77,6 +101,7 @@
             font-weight: 600;
             display: flex;
             justify-content: space-between;
+            /* La transición se controla desde JavaScript */
         }
     </style>
 </head>
@@ -84,16 +109,11 @@
 
     <header>
         <h1>Mis Rutinas</h1>
-        <!-- Botón para crear una nueva rutina -->
         <button class="btn-add" onclick="crearRutina()">+</button>
     </header>
 
     <main id="rutinas-container">
-        <!-- Las rutinas se inyectarán aquí con JavaScript -->
-        <div class="rutina-card">
-            <span>🏋️‍♂️ Día de Pecho</span>
-            <span style="color: var(--text-secondary)">></span>
-        </div>
+        <!-- Las rutinas se inyectarán aquí -->
     </main>
 
     <script src="app.js"></script>
