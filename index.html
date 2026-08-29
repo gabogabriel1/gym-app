@@ -26,8 +26,7 @@
             margin: 0;
             padding: 0;
             -webkit-tap-highlight-color: transparent;
-            /* 1. ESTO PREVIENE EL ZOOM AL HACER DOBLE TOQUE */
-            touch-action: pan-y; 
+            touch-action: pan-y; /* Bloquea el zoom del doble toque */
         }
 
         body {
@@ -40,7 +39,7 @@
             -webkit-user-select: none;
         }
 
-        input, textarea, button {
+        input, textarea {
             user-select: auto;
             -webkit-user-select: auto;
         }
@@ -64,7 +63,6 @@
         .btn-add {
             background-color: var(--accent-color);
             color: white;
-            border: none;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -75,13 +73,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
             z-index: 10;
         }
 
         .btn-back {
-            background: none;
-            border: none;
             color: var(--accent-color);
             font-size: 17px;
             font-weight: 500;
@@ -98,7 +93,6 @@
             gap: 15px;
         }
 
-        /* Tarjetas Deslizantes */
         .card-wrapper {
             position: relative;
             border-radius: 14px;
@@ -177,7 +171,6 @@
             font-weight: 400;
         }
 
-        /* Modales Centralizados (Reutilizables) */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -260,22 +253,22 @@
     <div id="vista-rutinas" class="view active">
         <header>
             <h1>Mis Rutinas</h1>
-            <button class="btn-add" onclick="abrirModalRutina()">+</button>
+            <div class="btn-add" id="btn-add-rutina">+</div>
         </header>
         <main id="rutinas-container"></main>
     </div>
 
     <!-- VISTA 2: Detalle de la Rutina (Ejercicios) -->
     <div id="vista-detalle" class="view">
-        <button class="btn-back" onclick="volverARutinas()">‹ Volver</button>
+        <div class="btn-back" onclick="volverARutinas()">‹ Volver</div>
         <header style="margin-top: 10px;">
             <h1 id="titulo-rutina-detalle">Rutina</h1>
-            <button class="btn-add" onclick="abrirModalEjercicio()">+</button>
+            <div class="btn-add" id="btn-add-ejercicio">+</div>
         </header>
         <main id="ejercicios-container"></main>
     </div>
 
-    <!-- 2. NUEVO MODAL: Crear Rutina -->
+    <!-- MODAL: Crear Rutina -->
     <div id="modal-rutina" class="modal-overlay">
         <div class="modal-box">
             <h2>Nueva Rutina</h2>
@@ -307,6 +300,7 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <!-- EL TRUCO ESTÁ AQUÍ: EL ?v=2 OBLIGA A TU IPHONE A DESCARGAR EL NUEVO CÓDIGO -->
+    <script src="app.js?v=2"></script>
 </body>
 </html>
