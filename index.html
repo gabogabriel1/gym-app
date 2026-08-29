@@ -25,7 +25,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -34,6 +34,15 @@
             color: var(--text-primary);
             padding: 20px;
             padding-top: env(safe-area-inset-top);
+            /* Bloqueamos la selección de texto general para que el swipe sea fluido */
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* ¡ESTO ARREGLA EL MODAL! Permite que el teclado de iOS se abra al tocar un input */
+        input, textarea, button {
+            user-select: auto;
+            -webkit-user-select: auto;
         }
 
         .view {
@@ -92,33 +101,43 @@
             gap: 15px;
         }
 
-        /* Contenedor de Tarjetas con Swipe Bidireccional */
+        /* Contenedor de Tarjetas con Swipe Mejorado (Estilo Apple Mail) */
         .card-wrapper {
             position: relative;
             border-radius: 14px;
-            overflow: hidden;
-            background-color: var(--bg-color);
+            overflow: hidden; 
+            background-color: transparent;
         }
 
         .action-bg-left, .action-bg-right {
             position: absolute;
             top: 0;
             height: 100%;
-            width: 90px;
+            width: 50%; /* Llenan la mitad de la tarjeta por debajo */
             display: flex;
-            justify-content: center;
             align-items: center;
             color: white;
             font-weight: 600;
             font-size: 15px;
             cursor: pointer;
+            z-index: 1;
         }
-        .action-bg-left { left: 0; background-color: var(--edit-color); }
-        .action-bg-right { right: 0; background-color: var(--danger-color); }
+        .action-bg-left { 
+            left: 0; 
+            background-color: var(--edit-color); 
+            justify-content: flex-start;
+            padding-left: 25px;
+        }
+        .action-bg-right { 
+            right: 0; 
+            background-color: var(--danger-color); 
+            justify-content: flex-end;
+            padding-right: 25px;
+        }
 
         .swipe-card {
             position: relative;
-            z-index: 2;
+            z-index: 2; /* Siempre por encima de los botones de acción */
             background-color: var(--card-bg);
             padding: 18px 20px;
             border-radius: 14px;
@@ -129,7 +148,6 @@
             font-weight: 600;
         }
 
-        /* Estilos específicos de Ejercicios */
         .ejercicio-content {
             display: flex;
             gap: 15px;
@@ -254,7 +272,7 @@
     <div id="vista-rutinas" class="view active">
         <header>
             <h1>Mis Rutinas</h1>
-            <button class="btn-add" onclick="crearRutina()">+</button>
+            <button class="btn-add" onclick="pedirNombreRutina()">+</button>
         </header>
         <main id="rutinas-container">
             <!-- Inyectado por JS -->
@@ -273,7 +291,7 @@
         </main>
     </div>
 
-    <!-- MODAL CENTRALIZADO -->
+    <!-- MODAL CENTRALIZADO PARA EJERCICIOS -->
     <div id="modal-overlay">
         <div class="modal-box">
             <h2 id="modal-titulo">Crear Ejercicio</h2>
