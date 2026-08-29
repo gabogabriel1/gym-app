@@ -26,6 +26,8 @@
             margin: 0;
             padding: 0;
             -webkit-tap-highlight-color: transparent;
+            /* 1. ESTO PREVIENE EL ZOOM AL HACER DOBLE TOQUE */
+            touch-action: pan-y; 
         }
 
         body {
@@ -34,23 +36,17 @@
             color: var(--text-primary);
             padding: 20px;
             padding-top: env(safe-area-inset-top);
-            /* Bloqueamos la selección de texto general para que el swipe sea fluido */
             user-select: none;
             -webkit-user-select: none;
         }
 
-        /* ¡ESTO ARREGLA EL MODAL! Permite que el teclado de iOS se abra al tocar un input */
         input, textarea, button {
             user-select: auto;
             -webkit-user-select: auto;
         }
 
-        .view {
-            display: none;
-        }
-        .view.active {
-            display: block;
-        }
+        .view { display: none; }
+        .view.active { display: block; }
 
         header {
             display: flex;
@@ -79,6 +75,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
             z-index: 10;
         }
 
@@ -101,7 +98,7 @@
             gap: 15px;
         }
 
-        /* Contenedor de Tarjetas con Swipe Mejorado (Estilo Apple Mail) */
+        /* Tarjetas Deslizantes */
         .card-wrapper {
             position: relative;
             border-radius: 14px;
@@ -113,7 +110,7 @@
             position: absolute;
             top: 0;
             height: 100%;
-            width: 50%; /* Llenan la mitad de la tarjeta por debajo */
+            width: 50%; 
             display: flex;
             align-items: center;
             color: white;
@@ -137,7 +134,7 @@
 
         .swipe-card {
             position: relative;
-            z-index: 2; /* Siempre por encima de los botones de acción */
+            z-index: 2; 
             background-color: var(--card-bg);
             padding: 18px 20px;
             border-radius: 14px;
@@ -180,8 +177,8 @@
             font-weight: 400;
         }
 
-        /* Modal Centralizado */
-        #modal-overlay {
+        /* Modales Centralizados (Reutilizables) */
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -225,9 +222,7 @@
             outline: none;
         }
 
-        .modal-box input:focus {
-            border-color: var(--accent-color);
-        }
+        .modal-box input:focus { border-color: var(--accent-color); }
 
         .modal-file-label {
             background-color: #3A3A3C;
@@ -255,15 +250,8 @@
             cursor: pointer;
         }
 
-        .btn-cancelar {
-            background-color: #3A3A3C;
-            color: white;
-        }
-
-        .btn-guardar {
-            background-color: var(--accent-color);
-            color: white;
-        }
+        .btn-cancelar { background-color: #3A3A3C; color: white; }
+        .btn-guardar { background-color: var(--accent-color); color: white; }
     </style>
 </head>
 <body>
@@ -272,11 +260,9 @@
     <div id="vista-rutinas" class="view active">
         <header>
             <h1>Mis Rutinas</h1>
-            <button class="btn-add" onclick="pedirNombreRutina()">+</button>
+            <button class="btn-add" onclick="abrirModalRutina()">+</button>
         </header>
-        <main id="rutinas-container">
-            <!-- Inyectado por JS -->
-        </main>
+        <main id="rutinas-container"></main>
     </div>
 
     <!-- VISTA 2: Detalle de la Rutina (Ejercicios) -->
@@ -286,13 +272,23 @@
             <h1 id="titulo-rutina-detalle">Rutina</h1>
             <button class="btn-add" onclick="abrirModalEjercicio()">+</button>
         </header>
-        <main id="ejercicios-container">
-            <!-- Inyectado por JS -->
-        </main>
+        <main id="ejercicios-container"></main>
     </div>
 
-    <!-- MODAL CENTRALIZADO PARA EJERCICIOS -->
-    <div id="modal-overlay">
+    <!-- 2. NUEVO MODAL: Crear Rutina -->
+    <div id="modal-rutina" class="modal-overlay">
+        <div class="modal-box">
+            <h2>Nueva Rutina</h2>
+            <input type="text" id="input-nombre-rutina" placeholder="Nombre (ej. Tren Superior)">
+            <div class="modal-buttons">
+                <button class="btn-cancelar" onclick="cerrarModalRutina()">Cancelar</button>
+                <button class="btn-guardar" onclick="guardarRutina()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Crear/Editar Ejercicio -->
+    <div id="modal-ejercicio" class="modal-overlay">
         <div class="modal-box">
             <h2 id="modal-titulo">Crear Ejercicio</h2>
             <input type="text" id="input-nombre" placeholder="Nombre (ej. Press de Banca)">
@@ -305,8 +301,8 @@
             </label>
 
             <div class="modal-buttons">
-                <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
-                <button class="btn-guardar" onclick="guardarModal()">Guardar</button>
+                <button class="btn-cancelar" onclick="cerrarModalEjercicio()">Cancelar</button>
+                <button class="btn-guardar" onclick="guardarEjercicio()">Guardar</button>
             </div>
         </div>
     </div>
