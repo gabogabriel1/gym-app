@@ -18,7 +18,7 @@
             --text-secondary: #EBEBF599;
             --accent-color: #0A84FF;
             --danger-color: #FF3B30;
-            --edit-color: #34C759; /* Verde iOS para editar */
+            --edit-color: #34C759;
         }
 
         * {
@@ -70,6 +70,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            z-index: 10;
         }
 
         .btn-back {
@@ -91,7 +92,7 @@
             gap: 15px;
         }
 
-        /* Tarjetas con Swipe General */
+        /* Contenedor de Tarjetas con Swipe Bidireccional */
         .card-wrapper {
             position: relative;
             border-radius: 14px;
@@ -117,16 +118,18 @@
 
         .swipe-card {
             position: relative;
-            z-index: 1;
+            z-index: 2;
             background-color: var(--card-bg);
-            padding: 15px 20px;
+            padding: 18px 20px;
             border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            font-size: 18px;
+            font-weight: 600;
         }
 
-        /* Ejercicios específicos */
+        /* Estilos específicos de Ejercicios */
         .ejercicio-content {
             display: flex;
             gap: 15px;
@@ -150,14 +153,16 @@
         .ejercicio-info h3 {
             font-size: 17px;
             margin-bottom: 4px;
+            font-weight: 600;
         }
 
         .ejercicio-info p {
             font-size: 14px;
             color: var(--text-secondary);
+            font-weight: 400;
         }
 
-        /* Modal Centralizado Estilo iOS */
+        /* Modal Centralizado */
         #modal-overlay {
             position: fixed;
             top: 0;
@@ -208,7 +213,7 @@
 
         .modal-file-label {
             background-color: #3A3A3C;
-            padding: 10px;
+            padding: 12px;
             border-radius: 10px;
             text-align: center;
             font-size: 14px;
@@ -249,7 +254,7 @@
     <div id="vista-rutinas" class="view active">
         <header>
             <h1>Mis Rutinas</h1>
-            <button class="btn-add" onclick="pedirNombreRutina()">+</button>
+            <button class="btn-add" onclick="crearRutina()">+</button>
         </header>
         <main id="rutinas-container">
             <!-- Inyectado por JS -->
@@ -268,7 +273,7 @@
         </main>
     </div>
 
-    <!-- MODAL CENTRALIZADO PARA DATOS -->
+    <!-- MODAL CENTRALIZADO -->
     <div id="modal-overlay">
         <div class="modal-box">
             <h2 id="modal-titulo">Crear Ejercicio</h2>
@@ -277,7 +282,7 @@
             <input type="number" id="input-repeticiones" placeholder="Repeticiones por serie (ej. 10)">
             
             <label class="modal-file-label" id="label-foto">
-                📷 Agregar/Cambiar foto (Opcional)
+                📷 Agregar foto (Opcional)
                 <input type="file" id="input-foto" accept="image/*" style="display: none;">
             </label>
 

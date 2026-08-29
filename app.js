@@ -1,15 +1,15 @@
 const CLAVE_MEMORIA = 'gym_app_rutinas';
 let rutinas = JSON.parse(localStorage.getItem(CLAVE_MEMORIA)) || [];
 let rutinaActivaId = null; 
-let ejercicioEditandoId = null; // Controla si estamos creando o editando un ejercicio
-let imagenBase64Temporal = null; // Almacena la foto convertida si se selecciona
+let ejercicioEditandoId = null; 
+let imagenBase64Temporal = null;
 
 function guardarDatos() {
     localStorage.setItem(CLAVE_MEMORIA, JSON.stringify(rutinas));
 }
 
-// --- UTILIDAD DE GESTO SWIPE (Reutilizable para Rutinas y Ejercicios) ---
-function activarSwipe(cardElement, onSwipeLeft, onSwipeRight) {
+// --- UTILIDAD DE GESTO SWIPE ---
+function activarSwipe(cardElement) {
     let startX = 0;
     let currentX = 0;
     let isDragging = false;
@@ -26,7 +26,6 @@ function activarSwipe(cardElement, onSwipeLeft, onSwipeRight) {
         const x = e.touches[0].clientX;
         currentX = x - startX;
         
-        // Permitir deslizar entre -90px (izquierda) y 90px (derecha)
         if (currentX > -110 && currentX < 110) {
             cardElement.style.transform = `translateX(${currentX}px)`;
         }
@@ -37,22 +36,18 @@ function activarSwipe(cardElement, onSwipeLeft, onSwipeRight) {
         cardElement.style.transition = 'transform 0.2s ease';
         
         if (currentX < -45) {
-            // Deslizó a la izquierda (Borrar)
             cardElement.style.transform = `translateX(-90px)`;
             isSwiped = 'left';
         } else if (currentX > 45) {
-            // Deslizó a la derecha (Editar)
             cardElement.style.transform = `translateX(90px)`;
             isSwiped = 'right';
         } else {
-            // Regresar al centro
             cardElement.style.transform = `translateX(0px)`;
             isSwiped = false;
         }
         currentX = 0;
     });
 
-    // Tocar la tarjeta cuando está abierta la cierra
     cardElement.addEventListener('click', (e) => {
         if (isSwiped) {
             cardElement.style.transform = `translateX(0px)`;
@@ -60,13 +55,6 @@ function activarSwipe(cardElement, onSwipeLeft, onSwipeRight) {
             e.stopPropagation();
         }
     });
-
-    return {
-        cerrar: () => {
-            cardElement.style.transform = `translateX(0px)`;
-            isSwiped = false;
-        }
-    };
 }
 
 
@@ -89,14 +77,14 @@ function renderizarRutinas() {
             <div class="action-bg-right" onclick="borrarRutina('${rutina.id}')">Borrar</div>
             <div class="swipe-card" id="rutina-${rutina.id}">
                 <span>🏋️‍♂️ ${rutina.nombre}</span>
-                <span style="color: var(--text-secondary)">></span>
+                <span style="color: var(--text-secondary)">›</span>
             </div>
         `;
         
         contenedor.appendChild(wrapper);
         const card = wrapper.querySelector('.swipe-card');
         
-        const swipeControl = activarSwipe(card, null, null);
+        activarSwipe(card);
 
         card.addEventListener('click', () => {
             abrirRutina(rutina.id);
@@ -104,7 +92,7 @@ function renderizarRutinas() {
     });
 }
 
-function pedirNombreRutina() {
+function crearRutina() {
     const nombre = prompt("Nombre de la nueva rutina (ej. Tren Superior):");
     if (nombre && nombre.trim() !== "") {
         const nuevaRutina = {
@@ -175,7 +163,6 @@ function renderizarEjercicios() {
                         <p>Objetivo: ${ej.series} series × ${ej.repeticiones} reps</p>
                     </div>
                 </div>
-                <span style="color: var(--text-secondary)">›</span>
             </div>
         `;
         
@@ -192,10 +179,10 @@ function abrirModalEjercicio(ejercicioId = null) {
     ejercicioEditandoId = ejercicioId;
     imagenBase64Temporal = null;
     
-    document.getElementById('input-foto').value = ''; // Limpiar selector
+    document.getElementById('input-foto').value = '';
+    document.getElementById('label-foto').innerHTML = "📷 Agregar foto (Opcional)";
 
     if (ejercicioId) {
-        // Modo Edición: Rellenar datos anteriores
         const rutina = rutinas.find(r => r.id === rutinaActivaId);
         const ej = rutina.ejercicios.find(e => e.id === ejercicioId);
         
@@ -204,8 +191,10 @@ function abrirModalEjercicio(ejercicioId = null) {
         document.getElementById('input-series').value = ej.series;
         document.getElementById('input-repeticiones').value = ej.repeticiones;
         imagenBase64Temporal = ej.imagen || null;
+        if (ej.imagen) {
+            document.getElementById('label-foto').innerHTML = "✅ Foto cargada (Toca para cambiar)";
+        }
     } else {
-        // Modo Creación: Vacío
         document.getElementById('modal-titulo').innerText = "Nuevo Ejercicio";
         document.getElementById('input-nombre').value = '';
         document.getElementById('input-series').value = '';
@@ -219,14 +208,13 @@ function cerrarModal() {
     document.getElementById('modal-overlay').style.display = 'none';
 }
 
-// Escuchar cambios en el selector de fotos del modal
 document.getElementById('input-foto').addEventListener('change', function(e) {
     const archivo = e.target.files[0];
     if (archivo) {
         const lector = new FileReader();
         lector.onload = function(eventoLectura) {
             imagenBase64Temporal = eventoLectura.target.result;
-            document.getElementById('label-foto').innerText = "✅ Foto seleccionada con éxito";
+            document.getElementById('label-foto').innerHTML = "✅ Foto seleccionada con éxito";
         };
         lector.readAsDataURL(archivo);
     }
@@ -246,22 +234,20 @@ function guardarModal() {
     if (!rutina) return;
 
     if (ejercicioEditandoId) {
-        // Actualizar existente
         const ej = rutina.ejercicios.find(e => e.id === ejercicioEditandoId);
         if (ej) {
             ej.nombre = nombre;
             ej.series = series;
             ej.repeticiones = repeticiones;
-            ej.imagen = imagenBase64Temporal; // Si no cambió, mantiene la anterior o null
+            ej.imagen = imagenBase64Temporal;
         }
     } else {
-        // Crear nuevo
         const nuevoEj = {
             id: Date.now().toString(),
             nombre: nombre,
             series: series,
             repeticiones: repeticiones,
-            imagen: imagenBase64Temporal // Puede ser null (opcional)
+            imagen: imagenBase64Temporal
         };
         rutina.ejercicios.push(nuevoEj);
     }
