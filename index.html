@@ -2,24 +2,100 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- Evita que el usuario haga zoom, sintiéndose más como una app nativa -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Gym App</title>
+    <title>Gym App</title>
     
-    <!-- Enlaces para que iOS la reconozca como App -->
-    <link rel="manifest" href="./manifest.json">
+    <!-- Configuraciones para iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="./icon.jpg">
-    
+    <link rel="apple-touch-icon" href="icon.png">
+
     <style>
-        body { font-family: -apple-system, sans-serif; padding: 20px; text-align: center; }
-        h1 { color: #333; }
+        /* Estilos base inspirados en iOS Modo Oscuro */
+        :root {
+            --bg-color: #000000;
+            --card-bg: #1C1C1E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #EBEBF599;
+            --accent-color: #0A84FF; /* Azul clásico de iOS */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none; /* Evita que el texto se seleccione al tocar rápido */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding: 20px;
+            padding-top: env(safe-area-inset-top); /* Respeta el notch del iPhone 17 */
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            margin-top: 20px;
+        }
+
+        h1 {
+            font-size: 34px;
+            font-weight: 700;
+        }
+
+        .btn-add {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Contenedor donde aparecerán las rutinas */
+        #rutinas-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .rutina-card {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+        }
     </style>
 </head>
 <body>
-    <h1>¡Mi App Funciona!</h1>
-    <p>Esta es mi primera aplicación privada.</p>
-    <script src="./app.js"></script>
+
+    <header>
+        <h1>Mis Rutinas</h1>
+        <!-- Botón para crear una nueva rutina -->
+        <button class="btn-add" onclick="crearRutina()">+</button>
+    </header>
+
+    <main id="rutinas-container">
+        <!-- Las rutinas se inyectarán aquí con JavaScript -->
+        <div class="rutina-card">
+            <span>🏋️‍♂️ Día de Pecho</span>
+            <span style="color: var(--text-secondary)">></span>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
 </body>
 </html>
