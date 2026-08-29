@@ -26,7 +26,6 @@ function activarSwipe(cardElement, modo = 'both') {
         if (!isDragging) return;
         let moveX = e.touches[0].clientX - startX;
         
-        // Bloqueo estricto de dirección
         if (modo === 'left' && moveX > 0) moveX = 0; 
         if (modo === 'right' && moveX < 0) moveX = 0;
 
@@ -92,7 +91,6 @@ function renderizarRutinas() {
         contenedor.appendChild(wrapper);
         const card = wrapper.querySelector('.swipe-card');
         
-        // Aquí forzamos que SOLO se pueda deslizar a la izquierda
         activarSwipe(card, 'left');
 
         card.addEventListener('click', () => {
@@ -175,8 +173,8 @@ function renderizarEjercicios() {
         let contenidoImg = ej.imagen ? `<img src="${ej.imagen}" class="ejercicio-img">` : `<div class="ejercicio-img">🏋️</div>`;
 
         wrapper.innerHTML = `
-            <div class="action-bg-left" onclick="editarEjercicio('${ej.id}', event)">Editar</div>
-            <div class="action-bg-right" onclick="borrarEjercicio('${ej.id}', event)">Borrar</div>
+            <div class="action-bg-left btn-accion-editar" data-id="${ej.id}">Editar</div>
+            <div class="action-bg-right btn-accion-borrar" data-id="${ej.id}">Borrar</div>
             <div class="swipe-card" id="ejercicio-${ej.id}">
                 <div class="ejercicio-content">
                     ${contenidoImg}
@@ -192,6 +190,14 @@ function renderizarEjercicios() {
         const card = wrapper.querySelector('.swipe-card');
         
         activarSwipe(card, 'both');
+
+        // Escucha ultra-robusta para evitar que el toque falle en iOS
+        wrapper.querySelector('.btn-accion-editar').addEventListener('click', (event) => {
+            editarEjercicio(ej.id, event);
+        });
+        wrapper.querySelector('.btn-accion-borrar').addEventListener('click', (event) => {
+            borrarEjercicio(ej.id, event);
+        });
     });
 }
 
@@ -302,9 +308,9 @@ function borrarEjercicio(id, event) {
     }
 }
 
-// --- CONECTAMOS LOS BOTONES DESDE JS PARA BURLAR LA CACHÉ ---
+// --- CONEXIÓN DE BOTONES PRINCIPALES ---
 document.getElementById('btn-add-rutina').addEventListener('click', abrirModalRutina);
-document.getElementById('btn-add-ejercicio').addEventListener('click', abrirModalEjercicio);
+document.getElementById('btn-add-ejercicio').addEventListener('click', () => abrirModalEjercicio(null));
 
 // Arrancar app
 renderizarRutinas();
