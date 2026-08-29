@@ -16,7 +16,7 @@
             --text-primary: #FFFFFF;
             --text-secondary: #EBEBF599;
             --accent-color: #0A84FF;
-            --danger-color: #FF3B30; /* Rojo iOS */
+            --danger-color: #FF3B30;
         }
 
         * {
@@ -34,11 +34,19 @@
             padding-top: env(safe-area-inset-top);
         }
 
+        /* Vistas (Pantallas) */
+        .view {
+            display: none;
+        }
+        .view.active {
+            display: block;
+        }
+
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             margin-top: 20px;
         }
 
@@ -55,26 +63,40 @@
             width: 40px;
             height: 40px;
             font-size: 28px;
-            line-height: 1; /* Esto ayuda a centrar el + */
-            padding-bottom: 4px; /* Ajuste óptico fino para iOS */
+            line-height: 1;
+            padding-bottom: 4px;
             cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        #rutinas-container {
+        .btn-back {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            font-size: 17px;
+            font-weight: 500;
+            cursor: pointer;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 15px;
         }
 
-        /* Estructura para el Swipe to Delete */
+        /* Contenedores de listas */
+        #rutinas-container, #ejercicios-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Tarjetas de Rutinas con Swipe */
         .rutina-wrapper {
             position: relative;
             border-radius: 14px;
             overflow: hidden;
             background-color: var(--danger-color);
-            margin-bottom: 15px; 
         }
 
         .btn-delete {
@@ -101,20 +123,66 @@
             font-weight: 600;
             display: flex;
             justify-content: space-between;
-            /* La transición se controla desde JavaScript */
+        }
+
+        /* Tarjetas de Ejercicios */
+        .ejercicio-card {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 14px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .ejercicio-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            object-fit: cover;
+            background-color: #2C2C2E;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .ejercicio-info h3 {
+            font-size: 17px;
+            margin-bottom: 4px;
+        }
+
+        .ejercicio-info p {
+            font-size: 14px;
+            color: var(--text-secondary);
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Mis Rutinas</h1>
-        <button class="btn-add" onclick="crearRutina()">+</button>
-    </header>
+    <!-- VISTA 1: Lista de Rutinas -->
+    <div id="vista-rutinas" class="view active">
+        <header>
+            <h1>Mis Rutinas</h1>
+            <button class="btn-add" onclick="crearRutina()">+</button>
+        </header>
+        <main id="rutinas-container">
+            <!-- Inyectado por JS -->
+        </main>
+    </div>
 
-    <main id="rutinas-container">
-        <!-- Las rutinas se inyectarán aquí -->
-    </main>
+    <!-- VISTA 2: Detalle de la Rutina (Ejercicios) -->
+    <div id="vista-detalle" class="view">
+        <button class="btn-back" onclick="volverARutinas()">‹ Volver</button>
+        <header style="margin-top: 10px;">
+            <h1 id="titulo-rutina-detalle">Rutina</h1>
+            <button class="btn-add" onclick="crearEjercicio()">+</button>
+        </header>
+        <main id="ejercicios-container">
+            <!-- Inyectado por JS -->
+        </main>
+    </div>
 
     <script src="app.js"></script>
 </body>

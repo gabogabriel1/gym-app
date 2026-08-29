@@ -1,18 +1,12 @@
 const CLAVE_MEMORIA = 'gym_app_rutinas';
 let rutinas = JSON.parse(localStorage.getItem(CLAVE_MEMORIA)) || [];
+let rutinaActivaId = null; // Guarda el ID de la rutina que estás viendo actualmente
 
 function guardarDatos() {
     localStorage.setItem(CLAVE_MEMORIA, JSON.stringify(rutinas));
 }
 
-function borrarRutina(id) {
-    // Pedimos confirmación antes de borrar
-    if(confirm("¿Seguro que quieres borrar esta rutina?")) {
-        rutinas = rutinas.filter(r => r.id !== id);
-        guardarDatos();
-        renderizarRutinas();
-    }
-}
+// --- VISTA 1: RUTINAS ---
 
 function renderizarRutinas() {
     const contenedor = document.getElementById('rutinas-container');
@@ -24,12 +18,11 @@ function renderizarRutinas() {
     }
 
     rutinas.forEach(rutina => {
-        // Creamos el contenedor que guarda tanto la tarjeta como el botón de borrar
         const wrapper = document.createElement('div');
         wrapper.className = 'rutina-wrapper';
         
         wrapper.innerHTML = `
-            <div class="btn-delete" onclick="borrarRutina('${rutina.id}')">Borrar</div>
+            <div class="btn-delete" onclick="borrarRutina(event, '${rutina.id}')">Borrar</div>
             <div class="rutina-card" id="card-${rutina.id}">
                 <span>🏋️‍♂️ ${rutina.nombre}</span>
                 <span style="color: var(--text-secondary)">></span>
@@ -38,25 +31,22 @@ function renderizarRutinas() {
         
         contenedor.appendChild(wrapper);
 
-        // Lógica para detectar el dedo deslizando (Touch Events)
         const card = wrapper.querySelector('.rutina-card');
         let startX = 0;
         let currentX = 0;
         let isDragging = false;
-        let isSwiped = false; // Nos dice si la tarjeta está abierta o cerrada
+        let isSwiped = false;
 
         card.addEventListener('touchstart', (e) => {
             startX = e.touches[0].clientX;
             isDragging = true;
-            card.style.transition = 'none'; // Quitamos la animación al arrastrar para que siga al dedo exacto
+            card.style.transition = 'none';
         }, {passive: true});
 
         card.addEventListener('touchmove', (e) => {
             if (!isDragging) return;
             const x = e.touches[0].clientX;
             currentX = x - startX;
-            
-            // Solo permitimos deslizar hacia la izquierda (números negativos) y un máximo de 100px
             if (currentX < 0 && currentX > -100) {
                 card.style.transform = `translateX(${currentX}px)`;
             }
@@ -64,29 +54,23 @@ function renderizarRutinas() {
 
         card.addEventListener('touchend', () => {
             isDragging = false;
-            card.style.transition = 'transform 0.2s ease'; // Devolvemos la animación suave
-            
-            // Si deslizó más de 40px, lo bloqueamos abierto (-80px)
+            card.style.transition = 'transform 0.2s ease';
             if (currentX < -40) {
                 card.style.transform = `translateX(-80px)`;
                 isSwiped = true;
             } else {
-                // Si no, lo cerramos
                 card.style.transform = `translateX(0px)`;
                 setTimeout(() => { isSwiped = false; }, 100);
             }
             currentX = 0;
         });
 
-        // Qué pasa cuando tocamos la tarjeta
         card.addEventListener('click', () => {
             if (isSwiped) {
-                // Si estaba abierta, el toque la cierra
                 card.style.transform = `translateX(0px)`;
                 isSwiped = false;
             } else {
-                // Si estaba cerrada, entramos a la rutina
-                alert("Próximamente: Aquí agregaremos los ejercicios de " + rutina.nombre);
+                abrirRutina(rutina.id);
             }
         });
     });
@@ -106,4 +90,113 @@ function crearRutina() {
     }
 }
 
+function borrarRutina(event, id) {
+    event.stopPropagation(); // Evita que se abra la rutina al tocar borrar
+    if(confirm("¿Seguro que quieres borrar esta rutina?")) {
+        rutinas = rutinas.filter(r => r.id !== id);
+        guardarDatos();
+        renderizarRutinas();
+    }
+}
+
+
+// --- NAVEGACIÓN Y VISTA 2: DETALLE / EJERCICIOS ---
+
+function abrirRutina(id) {
+    rutinaActivaId = id;
+    const rutina = rutinas.find(r => r.id === id);
+    if (!rutina) return;
+
+    // Cambiar título de la vista interior
+    document.getElementById('titulo-rutina-detalle').innerText = rutina.nombre;
+
+    // Cambiar de pantalla
+    document.getElementById('vista-rutinas').classList.remove('active');
+    document.getElementById('vista-detalle').classList.add('active');
+
+    renderizarEjercicios();
+}
+
+function volverARutinas() {
+    rutinaActivaId = null;
+    document.getElementById('vista-detalle').classList.remove('active');
+    document.getElementById('vista-rutinas').classList.add('active');
+    renderizarRutinas();
+}
+
+function renderizarEjercicios() {
+    const contenedor = document.getElementById('ejercicios-container');
+    contenedor.innerHTML = '';
+
+    const rutina = rutinas.find(r => r.id === rutinaActivaId);
+    if (!rutina || rutina.ejercicios.length === 0) {
+        contenedor.innerHTML = '<p style="text-align: center; color: var(--text-secondary); margin-top: 20px;">No hay ejercicios en esta rutina. Toca el botón + para agregar uno.</p>';
+        return;
+    }
+
+    rutina.ejercicios.forEach(ej => {
+        const tarjeta = document.createElement('div');
+        tarjeta.className = 'ejercicio-card';
+        
+        // Si el ejercicio tiene imagen guardada la mostramos, sino un icono por defecto
+        let contenidoImg = ej.imagen ? `<img src="${ej.imagen}" class="ejercicio-img">` : `<div class="ejercicio-img">🏋️</div>`;
+
+        tarjeta.innerHTML = `
+            ${contenidoImg}
+            <div class="ejercicio-info">
+                <h3>${ej.nombre}</h3>
+                <p>Objetivo: ${ej.series} series × ${ej.repeticiones} reps</p>
+            </div>
+        `;
+        contenedor.appendChild(tarjeta);
+    });
+}
+
+function crearEjercicio() {
+    const nombre = prompt("Nombre del ejercicio (ej. Press de Banca):");
+    if (!nombre || nombre.trim() === "") return;
+
+    const series = prompt("¿Cuántas series planeas hacer?", "4");
+    const repeticiones = prompt("¿Cuántas repeticiones por serie?", "10");
+
+    // Creamos un selector de archivos invisible temporalmente para que selecciones la foto desde el celular
+    const inputFoto = document.createElement('input');
+    inputFoto.type = 'file';
+    inputFoto.accept = 'image/*';
+    
+    inputFoto.onchange = (e) => {
+        const archivo = e.target.files[0];
+        if (archivo) {
+            const lector = new FileReader();
+            lector.onload = function(eventoLectura) {
+                const base64Imagen = eventoLectura.target.result;
+                guardarNuevoEjercicio(nombre.trim(), series, repeticiones, base64Imagen);
+            };
+            lector.readAsDataURL(archivo);
+        } else {
+            guardarNuevoEjercicio(nombre.trim(), series, repeticiones, null);
+        }
+    };
+
+    // Disparamos el selector de archivos del sistema
+    inputFoto.click();
+}
+
+function guardarNuevoEjercicio(nombre, series, repeticiones, imagen) {
+    const rutina = rutinas.find(r => r.id === rutinaActivaId);
+    if (rutina) {
+        const nuevoEj = {
+            id: Date.now().toString(),
+            nombre: nombre,
+            series: series,
+            repeticiones: repeticiones,
+            imagen: imagen
+        };
+        rutina.ejercicios.push(nuevoEj);
+        guardarDatos();
+        renderizarEjercicios();
+    }
+}
+
+// Inicializar app en la vista de rutinas
 renderizarRutinas();
